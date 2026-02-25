@@ -4,7 +4,6 @@ from matplotlib.patches import Polygon
 from shapely.geometry import LineString, Point
 from shapely.geometry import Polygon as ShapelyPolygon
 from shapely.geometry import MultiPolygon
-from shapely import distance as getDistance
 from shapely.ops import unary_union
 from tack import Tack
 
@@ -40,7 +39,6 @@ def get_segments_inside_region(cross_points, region):
     segments = []
     for i in range(len(cross_points) - 1):
         segment = LineString([cross_points[i], cross_points[i+1]])
-        # if region.contains(segment):
         segments.append(segment)
     return segments
 
@@ -153,10 +151,6 @@ def link_tacks_sequentially(TackList):
         path.append(currentTack.line)
 
         points.append([currentPoint.x,currentPoint.y])
-        # if currentTack.connectFlag == 0:
-        #     points.append(currentTack.line.coords[0])
-        # elif currentTack.connectFlag == 1:
-        #     points.append(currentTack.line.coords[-1])
         points.append([nextPoint.x,nextPoint.y])
 
         currentTack = mostNearTack
@@ -200,12 +194,10 @@ def coverage_path_planning_algorithm(zona_research, distance):
             midpoint = get_midpoint(edge[0], edge[1])
 
             point = np.array(midpoint) + get_shift(angle, distance / 2)
-            # Проверьте, находится ли точка внутри многоугольника            
             if not zona_research_polygon.contains(Point(point)):
                 # Точка находится снаружи многоугольника
                 point = np.array(midpoint) - get_shift(angle, distance / 2)
             line = get_straight_line(point, angle - np.pi / 2)
-            # plot_path(LineString(line), plt, ax)
             cross_point_set = []
 
             for otherEdge in zip(coords, coords[1:]):
@@ -228,10 +220,6 @@ def coverage_path_planning_algorithm(zona_research, distance):
 
         if vector_criterion:
             optimal_tack = find_maximum(vector_criterion)
-            # x, y = optimal_tack.xy
-            # ax.plot(x, y, 'k')
-            # plt.show()
-
             zona_research_polygon = get_subtraction(zona_research_polygon, get_cover_rectangle(optimal_tack, distance))
             zona_research_polygon = remove_micro_polygons(zona_research_polygon)
 
@@ -244,26 +232,4 @@ def coverage_path_planning_algorithm(zona_research, distance):
     
     path, points = link_tacks_sequentially(TackList)
     plot_paths(path,ax)
-    # plt.show()
     return points, ax
-    # return points
-
-
-# vertices1 = [(5, 10), (10, 15), (20,  20), (15, 5), (1, 1)]
-# vertices2 = [(2, 18), (8, 19), (14, 15), (17, 8), (5, 3)]
-# vertices3 = [(1, 6), (4, 18), (10, 20), (16, 15), (18, 7)]
-# vertices4 = [(3, 12), (7, 18), (14, 19), (18, 11), (12, 6)]
-# vertices5 = [(2, 8), (8, 18), (12, 20), (16, 12), (6, 5)]
-# vertices6 = [(3, 15), (7, 18), (8, 12), (14, 13), (16, 14), (19, 12), (10, 4), (4,2)]
-
-# vertices1 = [(4, 11), (11, 7), (16, 12), (13, 16), (8, 17)]
-
-
-gs = 1
-
-# path = coverage_path_planning_algorithm(vertices1, gs)
-# path = coverage_path_planning_algorithm(vertices2, gs)
-# path = coverage_path_planning_algorithm(vertices3, gs)
-# path = coverage_path_planning_algorithm(vertices4, gs)
-# path = coverage_path_planning_algorithm(vertices5, gs)
-
